@@ -136,10 +136,12 @@ int feature_extraction_pipeline(int argc, char** argv) {
   Datum datum;
   const int kMaxKeyStrLength = 100;
   char key_str[kMaxKeyStrLength];
-  std::vector<Blob<float>*> input_vec;
+  std::vector<Blob<Dtype>*> input_vec;
   std::vector<int> image_indices(num_features, 0);
   for (int batch_index = 0; batch_index < num_mini_batches; ++batch_index) {
     feature_extraction_net->Forward(input_vec);
+    const std::vector<shared_ptr<Blob<Dtype> > > blobs = feature_extraction_net->blobs();
+    const Dtype* labels = blobs[1]->cpu_data();
     for (int i = 0; i < num_features; ++i) {
       const shared_ptr<Blob<Dtype> > feature_blob = feature_extraction_net
           ->blob_by_name(blob_names[i]);
@@ -152,6 +154,7 @@ int feature_extraction_pipeline(int argc, char** argv) {
         datum.set_channels(feature_blob->channels());
         datum.clear_data();
         datum.clear_float_data();
+        datum.set_label(labels[n]);
         feature_blob_data = feature_blob->cpu_data() +
             feature_blob->offset(n);
         for (int d = 0; d < dim_features; ++d) {
