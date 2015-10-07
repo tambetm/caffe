@@ -76,7 +76,7 @@ DB* GetDB(const string& backend) {
   } else if (backend == "lmdb") {
     return new LMDB();
   } else {
-    LOG(FATAL) << "Unknown database backend";
+    LOG(FATAL) << "Unknown database backend: " << backend;
   }
 }
 
