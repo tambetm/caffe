@@ -316,6 +316,7 @@ message LayerParameter {
   // The default for the engine is set by the ENGINE switch at compile-time.
   optional AccuracyParameter accuracy_param = 102;
   optional ArgMaxParameter argmax_param = 103;
+  optional BNParameter bn_param = 202;
   optional ConcatParameter concat_param = 104;
   optional ContrastiveLossParameter contrastive_loss_param = 105;
   optional ConvolutionParameter convolution_param = 106;
@@ -330,6 +331,7 @@ message LayerParameter {
   optional ImageDataParameter image_data_param = 115;
   optional InfogainLossParameter infogain_loss_param = 116;
   optional InnerProductParameter inner_product_param = 117;
+  optional LocalParameter local_param = 134;
   optional LRNParameter lrn_param = 118;
   optional MemoryDataParameter memory_data_param = 119;
   optional MVNParameter mvn_param = 120;
@@ -402,6 +404,13 @@ message ArgMaxParameter {
   optional uint32 top_k = 2 [default = 1];
 }
 
+// Message that stores parameters used by BNLayer
+message BNParameter {
+  optional FillerParameter scale_filler = 1; // The filler for the scale
+  optional FillerParameter shift_filler = 2; // The filler for the shift
+}
+
+// Message that stores parameters used by ConcatLayer
 message ConcatParameter {
   // The axis along which to concatenate -- may be negative to index from the
   // end (e.g., -1 for the last axis).  Other axes must have the
@@ -451,6 +460,18 @@ message ConvolutionParameter {
   optional Engine engine = 15 [default = DEFAULT];
 }
 
+// Message that stores parameters used by LocalLayer
+message LocalParameter {
+  optional uint32 num_output = 1; // The number of outputs for the layer
+  optional bool bias_term = 2 [default = true]; // whether to have bias terms
+  optional uint32 pad = 3 [default = 0]; // The padding size
+  optional uint32 kernel_size = 4; // The kernel size
+  optional uint32 stride = 6 [default = 1]; // The stride
+  optional FillerParameter weight_filler = 7; // The filler for the weight
+  optional FillerParameter bias_filler = 8; // The filler for the bias
+}
+
+// Message that stores parameters used by DataLayer
 message DataParameter {
   enum DB {
     LEVELDB = 0;
@@ -479,6 +500,9 @@ message DataParameter {
   optional bool mirror = 6 [default = false];
   // Force the encoded image to have 3 color channels
   optional bool force_encoded_color = 9 [default = false];
+  
+  //Size (x batch_size) of shuffle buffer for batch normalization layer
+  optional uint32 shuffle_buffer_size = 10;
 }
 
 message DropoutParameter {
@@ -880,6 +904,7 @@ message V1LayerParameter {
     IMAGE_DATA = 12;
     INFOGAIN_LOSS = 13;
     INNER_PRODUCT = 14;
+    LOCAL = 40;
     LRN = 15;
     MEMORY_DATA = 29;
     MULTINOMIAL_LOGISTIC_LOSS = 16;
